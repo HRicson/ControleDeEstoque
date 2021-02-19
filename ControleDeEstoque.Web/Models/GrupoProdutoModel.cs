@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
+using System.Text;
 
 namespace ControleDeEstoque.Web.Models
 {
@@ -54,7 +56,10 @@ namespace ControleDeEstoque.Web.Models
                 using (SqlCommand comando = new SqlCommand())
                 {
                     comando.Connection = conexao;
-                    comando.CommandText = string.Format("SELECT * FROM grupo_produto WHERE (id = {0})", id);
+                    comando.CommandText = "SELECT * FROM grupo_produto WHERE (id = @id)";
+
+                    comando.Parameters.Add("@id", SqlDbType.Int).Value = id;
+
                     SqlDataReader reader = comando.ExecuteReader();
 
                     if (reader.Read())
@@ -85,7 +90,10 @@ namespace ControleDeEstoque.Web.Models
                     using (SqlCommand comando = new SqlCommand())
                     {
                         comando.Connection = conexao;
-                        comando.CommandText = string.Format("DELETE FROM grupo_produto WHERE (id = {0})", id);
+                        comando.CommandText = "DELETE FROM grupo_produto WHERE (id = @id)";
+
+                        comando.Parameters.Add("@id", SqlDbType.Int).Value = id;
+
                         retorno = (comando.ExecuteNonQuery() > 0);
                     }
                 }
@@ -110,15 +118,25 @@ namespace ControleDeEstoque.Web.Models
 
                     if (model == null)
                     {
-                        comando.CommandText = string.Format("INSERT INTO grupo_produto(nome, ativo) VALUES ('{0}', {1});" +
-                            "SELECT CONVERT(int, scope_identity())", Nome, Ativo ? 1 : 0);
+                        StringBuilder cmd = new StringBuilder();
+                        cmd.Append("INSERT INTO grupo_produto(nome, ativo)");
+                        cmd.Append("VALUES (@nome, @ativo);");
+                        cmd.Append("SELECT CONVERT(int, scope_identity())");
+
+                        comando.CommandText = cmd.ToString();
+
+                        comando.Parameters.Add("@nome", SqlDbType.VarChar).Value = Nome;
+                        comando.Parameters.Add("@ativo", SqlDbType.VarChar).Value = (Ativo ? 1 : 0);
+
                         retorno = (int)comando.ExecuteScalar();
                     }
                     else
                     {
-                        comando.CommandText = string.Format(
-                            "UPDATE grupo_produto SET nome='{1}', ativo={2} WHERE id={0}",
-                            Id, Nome, Ativo ? 1 : 0);
+                        comando.CommandText = "UPDATE grupo_produto SET nome=@nome, ativo=@ativo WHERE id=@id";
+
+                        comando.Parameters.Add("@nome", SqlDbType.VarChar).Value = Nome;
+                        comando.Parameters.Add("@ativo", SqlDbType.VarChar).Value = (Ativo ? 1 : 0);
+                        comando.Parameters.Add("@id", SqlDbType.Int).Value = Id;
 
                         if (comando.ExecuteNonQuery() > 0)
                         {

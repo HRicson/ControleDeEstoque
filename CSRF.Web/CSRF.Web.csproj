@@ -8,17 +8,17 @@
     <ProductVersion>
     </ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{B6FC04D2-68E2-4599-B50A-C8D18128AB9A}</ProjectGuid>
+    <ProjectGuid>{907CA472-41EC-4C95-9AA4-F72CDFEB1DE0}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ControleDeEstoque.Web</RootNamespace>
-    <AssemblyName>ControleDeEstoque.Web</AssemblyName>
+    <RootNamespace>CSRF.Web</RootNamespace>
+    <AssemblyName>CSRF.Web</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
-    <IISExpressSSLPort>44330</IISExpressSSLPort>
+    <IISExpressSSLPort>44319</IISExpressSSLPort>
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
@@ -120,19 +120,10 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="Controllers\CadastroController.cs" />
-    <Compile Include="Controllers\ContaController.cs" />
-    <Compile Include="Controllers\GraficoController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\OperacaoController.cs" />
-    <Compile Include="Controllers\RelatorioController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\CriptoHelper.cs" />
-    <Compile Include="Models\GrupoProdutoModel.cs" />
-    <Compile Include="Models\LoginViewModel.cs" />
-    <Compile Include="Models\UsuarioModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -144,7 +135,6 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
-    <Content Include="Scripts\bootbox.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
@@ -169,31 +159,13 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\Sobre.cshtml" />
+    <Content Include="Views\Home\About.cshtml" />
+    <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Cadastro\Usuario.cshtml" />
-    <Content Include="Views\Cadastro\LocalProduto.cshtml" />
-    <Content Include="Views\Cadastro\UnidadeMedida.cshtml" />
-    <Content Include="Views\Cadastro\Produto.cshtml" />
-    <Content Include="Views\Cadastro\Pais.cshtml" />
-    <Content Include="Views\Cadastro\Estado.cshtml" />
-    <Content Include="Views\Cadastro\Cidade.cshtml" />
-    <Content Include="Views\Cadastro\Fornecedor.cshtml" />
-    <Content Include="Views\Cadastro\PerfilUsuario.cshtml" />
-    <Content Include="Views\Cadastro\GrupoProduto.cshtml" />
-    <Content Include="Views\Cadastro\MarcaProduto.cshtml" />
-    <Content Include="Views\Operacao\Inventario.cshtml" />
-    <Content Include="Views\Operacao\LancPerdaProduto.cshtml" />
-    <Content Include="Views\Operacao\EntradaEstoque.cshtml" />
-    <Content Include="Views\Operacao\SaidaEstoque.cshtml" />
-    <Content Include="Views\Relatorio\Ressuprimento.cshtml" />
-    <Content Include="Views\Relatorio\PosicaoEstoque.cshtml" />
-    <Content Include="Views\Grafico\EntradaSaidaMes.cshtml" />
-    <Content Include="Views\Grafico\PerdaMes.cshtml" />
-    <Content Include="Views\Conta\Login.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />
@@ -224,9 +196,9 @@
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>54577</DevelopmentServerPort>
+          <DevelopmentServerPort>52800</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>https://localhost:44330/</IISUrl>
+          <IISUrl>https://localhost:44319/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

