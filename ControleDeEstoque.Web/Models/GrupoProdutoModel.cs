@@ -17,7 +17,27 @@ namespace ControleDeEstoque.Web.Models
         [Required]
         public bool Ativo { get; set; }
 
-        public static List<GrupoProdutoModel> RecuperarLista()
+        public static int RecuperarQuantidade()
+        {
+            int retorno = 0;
+
+            using (SqlConnection conexao = new SqlConnection())
+            {
+                conexao.ConnectionString = ConfigurationManager.ConnectionStrings["principal"].ConnectionString;
+                conexao.Open();
+
+                using (SqlCommand comando = new SqlCommand())
+                {
+                    comando.Connection = conexao;
+                    comando.CommandText = "SELECT count(*) FROM grupo_produto ";
+
+                    retorno = (int)comando.ExecuteScalar();
+                }
+            }
+            return retorno;
+        }
+
+        public static List<GrupoProdutoModel> RecuperarLista(int pagina, int tamPagina)
         {
             List<GrupoProdutoModel> retorno = new List<GrupoProdutoModel>();
 
@@ -28,9 +48,15 @@ namespace ControleDeEstoque.Web.Models
 
                 using (SqlCommand comando = new SqlCommand())
                 {
+                    var posicao = (pagina - 1) * tamPagina;
+
                     comando.Connection = conexao;
-                    comando.CommandText = "SELECT * FROM grupo_produto ORDER BY nome";
-                    var reader = comando.ExecuteReader();
+                    comando.CommandText = string.Format(
+                        "SELECT * FROM grupo_produto ORDER BY nome offset {0} rows fetch next {1} rows only",
+                        posicao > 0 ? posicao - 1 : 0, tamPagina);
+
+                    SqlDataReader reader = comando.ExecuteReader();
+
                     while (reader.Read())
                     {
                         retorno.Add(new GrupoProdutoModel

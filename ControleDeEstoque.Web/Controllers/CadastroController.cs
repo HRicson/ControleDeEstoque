@@ -9,32 +9,39 @@ namespace ControleDeEstoque.Web.Controllers
 {
     public class CadastroController : Controller
     {
+        private const int _quantMaxLinhasPorPagina = 5;
+
+        #region Usuários
+
+        private const string _senhaPadrao = "{$127;$188}";
+
         [Authorize]
-        public ActionResult GrupoProduto()
+        public ActionResult Usuario()
         {
-            return View(GrupoProdutoModel.RecuperarLista());
+            ViewBag.SenhaPadrao = _senhaPadrao;
+            return View(UsuarioModel.RecuperarLista());
         }
 
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public ActionResult RecuperarGrupoProduto(int id)
+        public ActionResult RecuperarUsuario(int id)
         {
-            return Json(GrupoProdutoModel.RecuperarPeloId(id));
+            return Json(UsuarioModel.RecuperarPeloId(id));
         }
 
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public ActionResult ExcluirGrupoProduto(int id)
+        public ActionResult ExcluirUsuario(int id)
         {
-            return Json(GrupoProdutoModel.ExcluirPeloId(id));
+            return Json(UsuarioModel.ExcluirPeloId(id));
         }
 
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public ActionResult SalvarGrupoProduto(GrupoProdutoModel model)
+        public ActionResult SalvarUsuario(UsuarioModel model)
         {
             var resultado = "OK";
             var mensagens = new List<string>();
@@ -52,6 +59,11 @@ namespace ControleDeEstoque.Web.Controllers
             {
                 try
                 {
+                    if (model.Senha == _senhaPadrao)
+                    {
+                        model.Senha = "";
+                    }
+
                     int id = model.Salvar();
 
                     if (id > 0)
@@ -67,6 +79,7 @@ namespace ControleDeEstoque.Web.Controllers
 
             return Json(new { Resultado = resultado, Mensagens = mensagens, IdSalvo = idSalvo });
         }
+        #endregion
 
         [Authorize]
         public ActionResult MarcaProduto()
@@ -124,12 +137,6 @@ namespace ControleDeEstoque.Web.Controllers
 
         [Authorize]
         public ActionResult Cadastro()
-        {
-            return View();
-        }
-
-        [Authorize]
-        public ActionResult Usuario()
         {
             return View();
         }

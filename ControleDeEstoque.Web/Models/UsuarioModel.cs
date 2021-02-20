@@ -1,18 +1,28 @@
 ﻿using ControleDeEstoque.Web.Helpers;
-using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
+using System.Text;
 
 namespace ControleDeEstoque.Web.Models
 {
     public class UsuarioModel
     {
-        public static bool ValidarUsuario(string login, string senha)
-        {   
-            var retorno = false;
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "Informe o login")]
+        public string Login { get; set; }
+        [Required(ErrorMessage = "Informe a senha")]
+        public string Senha { get; set; }
+        [Required(ErrorMessage = "Informe o nome")]
+        public string Nome { get; set; }
+
+        public static UsuarioModel ValidarUsuario(string login, string senha)
+        {
+            UsuarioModel retorno = null;
+
             using (var conexao = new SqlConnection())
             {
                 //@"Password=abc123;Persist Security Info=True;User ID=sa;Initial Catalog=HeroApp;Data Source=SOLARIS\SQLEXPRESS")
@@ -22,12 +32,168 @@ namespace ControleDeEstoque.Web.Models
                 using (var comando = new SqlCommand())
                 {
                     comando.Connection = conexao;
-                    comando.CommandText = "SELECT count(*) FROM usuario WHERE login = @login AND senha = @senha";
+                    comando.CommandText = "SELECT * FROM usuario WHERE login = @login AND senha = @senha";
 
                     comando.Parameters.Add("@login", SqlDbType.VarChar).Value = login;
                     comando.Parameters.Add("@senha", SqlDbType.VarChar).Value = CriptoHelper.HashMD5(senha);
 
-                    retorno = (int)comando.ExecuteScalar() > 0;
+                    SqlDataReader reader = comando.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        retorno = new UsuarioModel
+                        {
+                            Id = (int)reader["id"],
+                            Login = (string)reader["login"],
+                            Senha = (string)reader["senha"],
+                            Nome = (string)reader["Nome"]
+                        };
+                    }
+                }
+            }
+            return retorno;
+        }
+
+        public static List<UsuarioModel> RecuperarLista()
+        {
+            List<UsuarioModel> retorno = new List<UsuarioModel>();
+
+            using (SqlConnection conexao = new SqlConnection())
+            {
+                conexao.ConnectionString = ConfigurationManager.ConnectionStrings["principal"].ConnectionString;
+                conexao.Open();
+
+                using (SqlCommand comando = new SqlCommand())
+                {
+                    comando.Connection = conexao;
+                    comando.CommandText = "SELECT * FROM usuario ORDER BY nome";
+                    var reader = comando.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        retorno.Add(new UsuarioModel
+                        {
+                            Id = (int)reader["id"],
+                            Nome = (string)reader["nome"],
+                            Login = (string)reader["login"]
+                        });
+                    }
+                }
+            }
+            return retorno;
+        }
+
+        public static UsuarioModel RecuperarPeloId(int id)
+        {
+            UsuarioModel retorno = null;
+
+            using (SqlConnection conexao = new SqlConnection())
+            {
+                conexao.ConnectionString = ConfigurationManager.ConnectionStrings["principal"].ConnectionString;
+                conexao.Open();
+                using (SqlCommand comando = new SqlCommand())
+                {
+                    comando.Connection = conexao;
+                    comando.CommandText = "SELECT * FROM usuario WHERE (id = @id)";
+
+                    comando.Parameters.Add("@id", SqlDbType.Int).Value = id;
+
+                    SqlDataReader reader = comando.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        retorno = new UsuarioModel
+                        {
+                            Id = (int)reader["id"],
+                            Nome = (string)reader["nome"],
+                            Login = (string)reader["login"]
+                        };
+                    }
+                }
+            }
+            return retorno;
+        }
+
+        public static bool ExcluirPeloId(int id)
+        {
+            bool retorno = false;
+
+            if (RecuperarPeloId(id) != null)
+            {
+                using (SqlConnection conexao = new SqlConnection())
+                {
+                    conexao.ConnectionString = ConfigurationManager.ConnectionStrings["principal"].ConnectionString;
+                    conexao.Open();
+
+                    using (SqlCommand comando = new SqlCommand())
+                    {
+                        comando.Connection = conexao;
+                        comando.CommandText = "DELETE FROM usuario WHERE (id = @id)";
+
+                        comando.Parameters.Add("@id", SqlDbType.Int).Value = id;
+
+                        retorno = (comando.ExecuteNonQuery() > 0);
+                    }
+                }
+            }
+            return retorno;
+        }
+
+        public int Salvar()
+        {
+            int retorno = 0;
+
+            UsuarioModel model = RecuperarPeloId(Id);
+
+            using (SqlConnection conexao = new SqlConnection())
+            {
+                conexao.ConnectionString = ConfigurationManager.ConnectionStrings["principal"].ConnectionString;
+                conexao.Open();
+
+                using (SqlCommand comando = new SqlCommand())
+                {
+                    comando.Connection = conexao;
+
+                    if (model == null)
+                    {
+                        StringBuilder cmd = new StringBuilder();
+                        cmd.Append("INSERT INTO usuario(nome, login, senha)");
+                        cmd.Append("VALUES (@nome, @login, @senha);");
+                        cmd.Append("SELECT CONVERT(int, scope_identity())");
+
+                        comando.CommandText = cmd.ToString();
+
+                        comando.Parameters.Add("@nome", SqlDbType.VarChar).Value = Nome;
+                        comando.Parameters.Add("@login", SqlDbType.VarChar).Value = Login;
+                        comando.Parameters.Add("@senha", SqlDbType.VarChar).Value = CriptoHelper.HashMD5(Senha);
+
+                        retorno = (int)comando.ExecuteScalar();
+                    }
+                    else
+                    {
+                        StringBuilder cmd = new StringBuilder();
+                        cmd.Append("UPDATE usuario SET ");
+                        cmd.Append("nome = @nome, ");
+                        cmd.Append("login = @login ");
+                        if (!string.IsNullOrEmpty(Senha)) cmd.Append(", senha=@senha ");
+                        cmd.Append("WHERE id = @id");
+
+                        comando.CommandText = cmd.ToString();
+
+                        comando.Parameters.Add("@nome", SqlDbType.VarChar).Value = Nome;
+                        comando.Parameters.Add("@login", SqlDbType.VarChar).Value = Login;
+                        comando.Parameters.Add("@id", SqlDbType.Int).Value = Id;
+
+                        if (!string.IsNullOrEmpty(Senha))
+                        {
+                            comando.Parameters.Add("@senha", SqlDbType.VarChar)
+                                .Value = CriptoHelper.HashMD5(Senha);
+                        }
+
+                        if (comando.ExecuteNonQuery() > 0)
+                        {
+                            retorno = Id;
+                        }
+                    }
                 }
             }
             return retorno;
