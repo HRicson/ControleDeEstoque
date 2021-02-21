@@ -54,7 +54,7 @@ namespace ControleDeEstoque.Web.Models
             return retorno;
         }
 
-        public static List<UsuarioModel> RecuperarLista()
+        public static List<UsuarioModel> RecuperarLista(int pagina, int tamPagina)
         {
             List<UsuarioModel> retorno = new List<UsuarioModel>();
 
@@ -65,9 +65,14 @@ namespace ControleDeEstoque.Web.Models
 
                 using (SqlCommand comando = new SqlCommand())
                 {
+                    var posicao = (pagina - 1) * tamPagina;
+
                     comando.Connection = conexao;
-                    comando.CommandText = "SELECT * FROM usuario ORDER BY nome";
-                    var reader = comando.ExecuteReader();
+                    comando.CommandText = string.Format(
+                        "SELECT * FROM usuario ORDER BY nome offset {0} rows fetch next {1} rows only",
+                        posicao > 0 ? posicao - 1 : 0, tamPagina);
+
+                    SqlDataReader reader = comando.ExecuteReader();
                     while (reader.Read())
                     {
                         retorno.Add(new UsuarioModel
@@ -77,6 +82,25 @@ namespace ControleDeEstoque.Web.Models
                             Login = (string)reader["login"]
                         });
                     }
+                }
+            }
+            return retorno;
+        }
+        public static int RecuperarQuantidade()
+        {
+            int retorno = 0;
+
+            using (SqlConnection conexao = new SqlConnection())
+            {
+                conexao.ConnectionString = ConfigurationManager.ConnectionStrings["principal"].ConnectionString;
+                conexao.Open();
+
+                using (SqlCommand comando = new SqlCommand())
+                {
+                    comando.Connection = conexao;
+                    comando.CommandText = "SELECT count(*) FROM usuario";
+
+                    retorno = (int)comando.ExecuteScalar();
                 }
             }
             return retorno;

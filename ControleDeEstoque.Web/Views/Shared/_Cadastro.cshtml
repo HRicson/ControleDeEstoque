@@ -1,10 +1,6 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
-}
-
-@model List<ControleDeEstoque.Web.Models.GrupoProdutoModel>
-@{
-    ViewBag.Title = "Grupo de Produtos";
+    ViewBag.Title = "Cadastro de " + ViewBag.Title;
 }
 
 @RenderSection("Styles", true)
