@@ -43,10 +43,10 @@ function criar_linha_grid(dados) {
         set_dados_grid(dados) +
         '<td>' +
         '<a class="btn btn-primary btn-alterar" role="button" style="margin-right: 3px">' +
-        '<i class="glyphicon glyphicon-pencil"></i> Alterar' +
+        '<i class="glyphicon glyphicon-pencil"></i>' +
         '</a>' +
         '<a class="btn btn-danger btn-excluir" role="button">' +
-        '<i class="glyphicon glyphicon-trash"></i> Excluir' +
+        '<i class="glyphicon glyphicon-trash"></i>' +
         '</a>' +
         '</td>' +
         '</tr>';

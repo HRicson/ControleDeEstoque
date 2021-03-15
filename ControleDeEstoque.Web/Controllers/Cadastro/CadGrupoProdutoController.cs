@@ -6,6 +6,7 @@ using System.Web.Mvc;
 
 namespace ControleDeEstoque.Web.Controllers
 {
+    [Authorize(Roles = "Gerente,Administrativo,Operador")]
     public class CadGrupoProdutoController : Controller
     {
         private const int _quantMaxLinhasPorPagina = 5;
@@ -28,7 +29,6 @@ namespace ControleDeEstoque.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         [ValidateAntiForgeryToken]
         public JsonResult GrupoProdutoPagina(int pagina, int tamPag)
         {
@@ -38,7 +38,6 @@ namespace ControleDeEstoque.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         [ValidateAntiForgeryToken]
         public JsonResult RecuperarGrupoProduto(int id)
         {
@@ -46,15 +45,14 @@ namespace ControleDeEstoque.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Gerente,Administrativo")]
         public JsonResult ExcluirGrupoProduto(int id)
         {
             return Json(GrupoProdutoModel.ExcluirPeloId(id));
         }
 
         [HttpPost]
-        [Authorize]
         [ValidateAntiForgeryToken]
         public JsonResult SalvarGrupoProduto(GrupoProdutoModel model)
         {
