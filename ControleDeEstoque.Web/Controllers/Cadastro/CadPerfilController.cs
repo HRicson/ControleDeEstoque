@@ -14,6 +14,7 @@ namespace ControleDeEstoque.Web.Controllers.Cadastro
         [Authorize]
         public ActionResult Index()
         {
+            ViewBag.ListaUsuario = UsuarioModel.RecuperarLista();
             ViewBag.ListaTamPag = new SelectList(
                 new int[] { _quantMaxLinhasPorPagina, 10, 15, 20 }, _quantMaxLinhasPorPagina);
             ViewBag.QuantMaxLinhasPorPagina = _quantMaxLinhasPorPagina;
@@ -41,7 +42,10 @@ namespace ControleDeEstoque.Web.Controllers.Cadastro
         [ValidateAntiForgeryToken]
         public JsonResult RecuperarPerfil(int id)
         {
-            return Json(PerfilModel.RecuperarPeloId(id));
+            PerfilModel retorno = PerfilModel.RecuperarPeloId(id);
+            retorno.CarregarUsuarios();
+
+            return Json(retorno);
         }
 
         [HttpPost]

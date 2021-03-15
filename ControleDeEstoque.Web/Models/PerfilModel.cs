@@ -5,7 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Text;
 
-namespace ControleDeEstoque.Web
+namespace ControleDeEstoque.Web.Models
 {
     public class PerfilModel
     {
@@ -14,8 +14,14 @@ namespace ControleDeEstoque.Web
         [Required(ErrorMessage = "Preencha o nome.")]
         public string Nome { get; set; }
 
-        [Required]
         public bool Ativo { get; set; }
+
+        public List<UsuarioModel> Usuarios { get; set; }
+
+        public PerfilModel()
+        {
+            Usuarios = new List<UsuarioModel>();
+        }
 
         public static int RecuperarQuantidade()
         {
@@ -69,6 +75,43 @@ namespace ControleDeEstoque.Web
                 }
             }
             return retorno;
+        }
+
+        internal void CarregarUsuarios()
+        {
+            Usuarios.Clear();
+
+            using (SqlConnection conexao = new SqlConnection())
+            {
+                conexao.ConnectionString = ConfigurationManager.ConnectionStrings["principal"].ConnectionString;
+                conexao.Open();
+
+                using (SqlCommand comando = new SqlCommand())
+                {
+                    comando.Connection = conexao;
+
+                    StringBuilder cmd = new StringBuilder();
+
+                    cmd.Append("SELECT u.* ");
+                    cmd.Append("FROM perfil_usuario pu, usuario u ");
+                    cmd.Append("WHERE (pu.id_perfil = @id_perfil) and (pu.id_usuario = u.id) ");
+
+                    comando.CommandText = cmd.ToString();
+                    comando.Parameters.Add("@id_perfil", SqlDbType.Int).Value = Id;
+
+                    SqlDataReader reader = comando.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        Usuarios.Add(new UsuarioModel
+                        {
+                            Id = (int)reader["id"],
+                            Nome = (string)reader["nome"],
+                            Login = (string)reader["login"]
+                        });
+                    }
+                }
+            }
         }
 
         public static List<PerfilModel> RecuperarListaAtivos()

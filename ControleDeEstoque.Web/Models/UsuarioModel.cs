@@ -18,9 +18,6 @@ namespace ControleDeEstoque.Web.Models
         public string Senha { get; set; }
         [Required(ErrorMessage = "Informe o nome")]
         public string Nome { get; set; }
-        [Required(ErrorMessage = "Informe o perfil")]
-        public int IdPerfil { get; set; }
-
 
         public static UsuarioModel ValidarUsuario(string login, string senha)
         {
@@ -49,8 +46,7 @@ namespace ControleDeEstoque.Web.Models
                             Id = (int)reader["id"],
                             Login = (string)reader["login"],
                             Senha = (string)reader["senha"],
-                            Nome = (string)reader["Nome"],
-                            IdPerfil = (int)reader["id_perfil"]
+                            Nome = (string)reader["Nome"]
                         };
                     }
                 }
@@ -58,7 +54,7 @@ namespace ControleDeEstoque.Web.Models
             return retorno;
         }
 
-        public static List<UsuarioModel> RecuperarLista(int pagina, int tamPagina)
+        public static List<UsuarioModel> RecuperarLista(int pagina = -1, int tamPagina = -1)
         {
             List<UsuarioModel> retorno = new List<UsuarioModel>();
 
@@ -72,9 +68,17 @@ namespace ControleDeEstoque.Web.Models
                     var posicao = (pagina - 1) * tamPagina;
 
                     comando.Connection = conexao;
-                    comando.CommandText = string.Format(
+
+                    if (pagina == -1 || tamPagina == -1)
+                    {
+                        comando.CommandText = "SELECT * FROM usuario ORDER BY nome";
+                    }
+                    else
+                    {
+                        comando.CommandText = string.Format(
                         "SELECT * FROM usuario ORDER BY nome offset {0} rows fetch next {1} rows only",
                         posicao > 0 ? posicao - 1 : 0, tamPagina);
+                    }
 
                     SqlDataReader reader = comando.ExecuteReader();
                     while (reader.Read())
@@ -83,8 +87,7 @@ namespace ControleDeEstoque.Web.Models
                         {
                             Id = (int)reader["id"],
                             Nome = (string)reader["nome"],
-                            Login = (string)reader["login"],
-                            IdPerfil = (int)reader["id_perfil"]
+                            Login = (string)reader["login"]
                         });
                     }
                 }
@@ -134,8 +137,7 @@ namespace ControleDeEstoque.Web.Models
                         {
                             Id = (int)reader["id"],
                             Nome = (string)reader["nome"],
-                            Login = (string)reader["login"],
-                            IdPerfil = (int)reader["id_perfil"]
+                            Login = (string)reader["login"]
                         };
                     }
                 }
@@ -186,8 +188,8 @@ namespace ControleDeEstoque.Web.Models
                     if (model == null)
                     {
                         StringBuilder cmd = new StringBuilder();
-                        cmd.Append("INSERT INTO usuario(nome, login, senha, id_perfil)");
-                        cmd.Append("VALUES (@nome, @login, @senha, @id_perfil);");
+                        cmd.Append("INSERT INTO usuario(nome, login, senha)");
+                        cmd.Append("VALUES (@nome, @login, @senha);");
                         cmd.Append("SELECT CONVERT(int, scope_identity())");
 
                         comando.CommandText = cmd.ToString();
@@ -195,7 +197,6 @@ namespace ControleDeEstoque.Web.Models
                         comando.Parameters.Add("@nome", SqlDbType.VarChar).Value = Nome;
                         comando.Parameters.Add("@login", SqlDbType.VarChar).Value = Login;
                         comando.Parameters.Add("@senha", SqlDbType.VarChar).Value = CriptoHelper.HashMD5(Senha);
-                        comando.Parameters.Add("@id_perfil", SqlDbType.Int).Value = IdPerfil;
 
                         retorno = (int)comando.ExecuteScalar();
                     }
@@ -204,8 +205,7 @@ namespace ControleDeEstoque.Web.Models
                         StringBuilder cmd = new StringBuilder();
                         cmd.Append("UPDATE usuario SET ");
                         cmd.Append("nome = @nome, ");
-                        cmd.Append("login = @login, ");
-                        cmd.Append("id_perfil = @id_perfil");
+                        cmd.Append("login = @login ");
                         if (!string.IsNullOrEmpty(Senha)) cmd.Append(", senha=@senha ");
                         cmd.Append("WHERE id = @id");
 
@@ -214,7 +214,6 @@ namespace ControleDeEstoque.Web.Models
                         comando.Parameters.Add("@nome", SqlDbType.VarChar).Value = Nome;
                         comando.Parameters.Add("@login", SqlDbType.VarChar).Value = Login;
                         comando.Parameters.Add("@id", SqlDbType.Int).Value = Id;
-                        comando.Parameters.Add("@id_perfil", SqlDbType.Int).Value = IdPerfil;
 
                         if (!string.IsNullOrEmpty(Senha))
                         {
@@ -226,6 +225,38 @@ namespace ControleDeEstoque.Web.Models
                         {
                             retorno = Id;
                         }
+                    }
+                }
+            }
+            return retorno;
+        }
+
+        public string RecuperarStringNomePerfis()
+        {
+            string retorno = string.Empty;
+
+            using (SqlConnection conexao = new SqlConnection())
+            {
+                conexao.ConnectionString = ConfigurationManager.ConnectionStrings["principal"].ConnectionString;
+                conexao.Open();
+
+                using (SqlCommand comando = new SqlCommand())
+                {
+                    comando.Connection = conexao;
+
+                    StringBuilder cmd = new StringBuilder();
+                    cmd.Append("SELECT p.nome ");
+                    cmd.Append("FROM perfil_usuario pu, perfil p ");
+                    cmd.Append("WHERE (pu.id_usuario = @id_usuario) and (pu.id_perfil = p.id) and (p.ativo = 1) ");
+
+                    comando.CommandText = cmd.ToString();
+                    comando.Parameters.Add("@id_usuario", SqlDbType.Int).Value = Id;
+
+
+                    SqlDataReader reader = comando.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        retorno += (retorno != string.Empty ? ";" : string.Empty) + (string)reader["nome"];
                     }
                 }
             }
