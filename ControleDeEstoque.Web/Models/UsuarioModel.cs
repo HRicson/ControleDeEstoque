@@ -18,6 +18,9 @@ namespace ControleDeEstoque.Web.Models
         public string Senha { get; set; }
         [Required(ErrorMessage = "Informe o nome")]
         public string Nome { get; set; }
+        [Required(ErrorMessage = "Informe o perfil")]
+        public int IdPerfil { get; set; }
+
 
         public static UsuarioModel ValidarUsuario(string login, string senha)
         {
@@ -46,7 +49,8 @@ namespace ControleDeEstoque.Web.Models
                             Id = (int)reader["id"],
                             Login = (string)reader["login"],
                             Senha = (string)reader["senha"],
-                            Nome = (string)reader["Nome"]
+                            Nome = (string)reader["Nome"],
+                            IdPerfil = (int)reader["id_perfil"]
                         };
                     }
                 }
@@ -79,7 +83,8 @@ namespace ControleDeEstoque.Web.Models
                         {
                             Id = (int)reader["id"],
                             Nome = (string)reader["nome"],
-                            Login = (string)reader["login"]
+                            Login = (string)reader["login"],
+                            IdPerfil = (int)reader["id_perfil"]
                         });
                     }
                 }
@@ -129,7 +134,8 @@ namespace ControleDeEstoque.Web.Models
                         {
                             Id = (int)reader["id"],
                             Nome = (string)reader["nome"],
-                            Login = (string)reader["login"]
+                            Login = (string)reader["login"],
+                            IdPerfil = (int)reader["id_perfil"]
                         };
                     }
                 }
@@ -180,8 +186,8 @@ namespace ControleDeEstoque.Web.Models
                     if (model == null)
                     {
                         StringBuilder cmd = new StringBuilder();
-                        cmd.Append("INSERT INTO usuario(nome, login, senha)");
-                        cmd.Append("VALUES (@nome, @login, @senha);");
+                        cmd.Append("INSERT INTO usuario(nome, login, senha, id_perfil)");
+                        cmd.Append("VALUES (@nome, @login, @senha, @id_perfil);");
                         cmd.Append("SELECT CONVERT(int, scope_identity())");
 
                         comando.CommandText = cmd.ToString();
@@ -189,6 +195,7 @@ namespace ControleDeEstoque.Web.Models
                         comando.Parameters.Add("@nome", SqlDbType.VarChar).Value = Nome;
                         comando.Parameters.Add("@login", SqlDbType.VarChar).Value = Login;
                         comando.Parameters.Add("@senha", SqlDbType.VarChar).Value = CriptoHelper.HashMD5(Senha);
+                        comando.Parameters.Add("@id_perfil", SqlDbType.Int).Value = IdPerfil;
 
                         retorno = (int)comando.ExecuteScalar();
                     }
@@ -197,7 +204,8 @@ namespace ControleDeEstoque.Web.Models
                         StringBuilder cmd = new StringBuilder();
                         cmd.Append("UPDATE usuario SET ");
                         cmd.Append("nome = @nome, ");
-                        cmd.Append("login = @login ");
+                        cmd.Append("login = @login, ");
+                        cmd.Append("id_perfil = @id_perfil");
                         if (!string.IsNullOrEmpty(Senha)) cmd.Append(", senha=@senha ");
                         cmd.Append("WHERE id = @id");
 
@@ -206,6 +214,7 @@ namespace ControleDeEstoque.Web.Models
                         comando.Parameters.Add("@nome", SqlDbType.VarChar).Value = Nome;
                         comando.Parameters.Add("@login", SqlDbType.VarChar).Value = Login;
                         comando.Parameters.Add("@id", SqlDbType.Int).Value = Id;
+                        comando.Parameters.Add("@id_perfil", SqlDbType.Int).Value = IdPerfil;
 
                         if (!string.IsNullOrEmpty(Senha))
                         {

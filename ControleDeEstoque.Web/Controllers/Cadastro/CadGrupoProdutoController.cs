@@ -11,7 +11,6 @@ namespace ControleDeEstoque.Web.Controllers
     {
         private const int _quantMaxLinhasPorPagina = 5;
 
-        [Authorize]
         public ActionResult Index()
         {
             ViewBag.ListaTamPag = new SelectList(

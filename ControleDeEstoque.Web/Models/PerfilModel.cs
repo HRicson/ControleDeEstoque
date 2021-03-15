@@ -5,7 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Text;
 
-namespace ControleDeEstoque.Web.Models
+namespace ControleDeEstoque.Web
 {
     public class PerfilModel
     {
@@ -54,6 +54,36 @@ namespace ControleDeEstoque.Web.Models
                     comando.CommandText = string.Format(
                         "SELECT * FROM perfil ORDER BY nome offset {0} rows fetch next {1} rows only",
                         posicao > 0 ? posicao - 1 : 0, tamPagina);
+
+                    SqlDataReader reader = comando.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        retorno.Add(new PerfilModel
+                        {
+                            Id = (int)reader["id"],
+                            Nome = (string)reader["nome"],
+                            Ativo = (bool)reader["ativo"]
+                        });
+                    }
+                }
+            }
+            return retorno;
+        }
+
+        public static List<PerfilModel> RecuperarListaAtivos()
+        {
+            List<PerfilModel> retorno = new List<PerfilModel>();
+
+            using (SqlConnection conexao = new SqlConnection())
+            {
+                conexao.ConnectionString = ConfigurationManager.ConnectionStrings["principal"].ConnectionString;
+                conexao.Open();
+
+                using (SqlCommand comando = new SqlCommand())
+                {
+                    comando.Connection = conexao;
+                    comando.CommandText = "SELECT * FROM perfil WHERE ativo = 1 ORDER BY nome";
 
                     SqlDataReader reader = comando.ExecuteReader();
 
